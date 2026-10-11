@@ -1,0 +1,11 @@
+{
+  "name": "solumflow",
+  "owner": { "name": "SolumFlow" },
+  "plugins": [
+    {
+      "name": "solumflow",
+      "source": "./",
+      "description": "Skills for connecting a website to SolumFlow through the SolumFlow MCP server."
+    }
+  ]
+}
