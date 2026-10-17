@@ -1,0 +1,12 @@
+body { font-family: system-ui, sans-serif; margin: 0; line-height: 1.5; }
+header, main, footer { max-width: 60rem; margin: 0 auto; padding: 1rem; }
+header { display: flex; gap: 1rem; align-items: baseline; border-bottom: 1px solid #ccc; }
+header nav { display: flex; gap: 1rem; flex: 1; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 1rem; list-style: none; padding: 0; }
+.grid img, .product img { max-width: 100%; height: auto; }
+table { width: 100%; border-collapse: collapse; }
+td, th { padding: 0.25rem 0.5rem; text-align: left; border-bottom: 1px solid #eee; }
+fieldset { margin: 1rem 0; }
+label { display: block; margin: 0.25rem 0; }
+.warning { color: #a40; }
+.error { color: #b00; }
