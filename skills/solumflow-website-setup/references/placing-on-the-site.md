@@ -147,6 +147,15 @@ If the site has another cookie plugin (Complianz, Cookiebot, CookieYes), it has 
 
 Find the template that renders `<head>` on every page and put the site-wide tags there. Put the page snippets in the page templates. If you cannot find a shared head (site builders such as Webflow, Wix and Squarespace keep it in their own settings), explain where the person pastes each snippet in that builder's settings ("custom code in head", "before body end"), and give them the snippets.
 
+## The hosting order page
+
+It goes on one page of its own, such as `/bestellen` or `/hosting`, never site-wide. In the page's content, where the flow should be:
+
+- React 19 or later: `<CrmHostingOrder account="…" />` inside the `CrmEmbedProvider`, with the account from `get_hosting_order_page` (`url` ends in `/order/<account>`). `packageId="…"` opens with one hosting package chosen.
+- Anything else: paste the two lines of `embed` as they are. The `div` is where the flow appears; the script may stay right after it.
+
+The block takes the full width of its column and grows with the flow; do not put it in a narrow sidebar. The site's own styles do not reach into it and it does not change the site's.
+
 ## The cookie settings link
 
 Visitors have to be able to change their choice. With the banner, add a link in the footer, beside the privacy link if there is one:
@@ -181,9 +190,11 @@ Look for a CSP in:
 - the server config.
 
 If there is one, add the app's origin to:
-- `script-src` (embed scripts, banner, chat, tracking);
+- `script-src` (embed scripts, banner, chat, tracking, hosting order page);
 - `frame-src` (form, booking);
-- `connect-src` (chat, tracking, banner);
+- `connect-src` (chat, tracking, banner, hosting order page);
 - `img-src` (chat avatars, banner logo).
+
+The hosting order page takes payments through Stripe: add `https://js.stripe.com` to `script-src` and `frame-src`, and `https://api.stripe.com` to `connect-src`.
 
 With the banner and Tag Manager, also add Google's origins, which the container loads: `https://www.googletagmanager.com` in `script-src`, plus whatever the container's own tags need. If the site has no CSP, add none.

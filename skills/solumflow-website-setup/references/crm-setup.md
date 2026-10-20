@@ -11,6 +11,7 @@ Some tools below arrive with a later version of the MCP server, so the account's
 | Chat widget | `list_chat_widgets`, `upsert_chat_widget` | |
 | Tracking | `get_site_tracking`, `update_site_tracking` | |
 | Cookie banner | (the tag is built from tracking's site key; see below) | `get_consent_banner`, `update_consent_banner` (`website:manage`) |
+| Hosting order page | | `get_hosting_order_page`, `update_hosting_order_page` (`hosting-order:manage`) |
 
 A module that is switched off answers `feature_unavailable`. Modules are switched on per account by an administrator, not through the API. Tell the person which module it is (Forms, Calendar, Chat, Cookie banner) and carry on with the other parts.
 
@@ -95,3 +96,21 @@ The banner is a tag in the `<head>`:
 Place the tag from the line above in the meantime. It does nothing until the banner is switched on, so placing it early is harmless.
 
 The banner takes its colours, font and logo from Settings → Account → Branding. A change in the banner's settings reaches the site within an hour.
+
+## Hosting order page
+
+For an account that sells hosting: one order flow on the site where a visitor picks a domain, hosting and mail and pays once. It is drawn in place, in the account's house style and the site's font, without an iframe.
+
+**With `update_hosting_order_page`:**
+
+1. Call `get_hosting_order_page`. It returns the packages that could stand on the page (`candidates`), the ones that do (`packages`), the sites it may stand on (`allowedOrigins`), why it would not open (`refusal`), the page's own link (`url`) and the snippet (`embed`).
+2. Call `update_hosting_order_page` with:
+   - `allowedOrigins`: the whole list, with the site's production origin (`https://www.example.com`) added. On a site not on the list the block shows only a sentence;
+   - `packages`, if the person wants others than now: the whole list in the order the page shows it, each with `productId` and `service` (`hosting` or `email`), optionally one `featured` per card;
+   - `enabled: true`, only after the go-ahead: from then on visitors pay for real.
+3. A refusal to open (`conflict`) names what the account owner fixes in the app themselves: the renewal round still in shadow mode, no registrar login, a mail package without a mail login. Say it in plain words. Place the snippet anyway; it shows a sentence until the page is open.
+
+Use the `embed` the tool returns, or `CrmHostingOrder` with the account from it on React 19.
+
+**Without the tool:** the owner sets it up under Settings → Services → Order page, "On your own website", adds the site there and copies the two lines; you place them.
+

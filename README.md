@@ -24,7 +24,7 @@ Or, in Claude Code, as a plugin:
 
 | Skill | What it does |
 | --- | --- |
-| [`solumflow-website-setup`](skills/solumflow-website-setup/SKILL.md) | The basic setup: a menu with contact form, booking, chat widget, visitor tracking and cookie banner. It sets the chosen parts up in SolumFlow and places them in the site's code. |
+| [`solumflow-website-setup`](skills/solumflow-website-setup/SKILL.md) | The basic setup: a menu with contact form, booking, chat widget, the hosting order page, visitor tracking and cookie banner. It sets the chosen parts up in SolumFlow and places them in the site's code. |
 | [`solumflow-webshop`](skills/solumflow-webshop/SKILL.md) | A web shop in the site's own design: it fills the catalogue, sets up shipping, discounts and the revalidation webhook through the MCP server, builds the shop pages in a Next.js site with the SDK, and proves it with a test order. |
 
 Ask the agent something like "zet SolumFlow op mijn website" or "bouw mijn
