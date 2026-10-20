@@ -76,6 +76,19 @@ export default async function Page({ params }) {
 - The product has `images` (use `displayUrl`), `description`, `longDescription` (HTML the server has cleaned), `fields` (custom fields), `prices`, `variants` and `variantAxes`. Show a price as `priceFromCents` or a price's `amountCents`, written with a money formatter.
 - A product with variants is bought by the variant's `id`; one without by the product's `id`. A client component with the add-to-cart button gets only ids, labels and already-formatted price strings from the server page.
 
+### Extras and options on the product page
+
+A product may offer extras (other products that go with it: a warranty, assembly) and options (a choice on the product with a surcharge: an engraving, gift wrapping, a ribbon colour). `getProduct` answers both: `product.extras` and `product.options`, empty when there are none. Show them from that answer and nowhere else.
+
+- **Extras:** each has a name, a price (`priceId`, `priceCents`) and, when it is sold in variants, a `variants` list of which the visitor picks one (send that variant's `priceId`). `maxQuantity` is the most that may be taken; `pricedPerUnit` means it follows the quantity of the line. Offer a checkbox or a small quantity field, not a free number.
+- **Options:** by `kind`. `text` is an input with `maxLength`, `checkbox` a checkbox, `choice` a select or radio group over `choices`. Mark `required` ones and show `helpText`. A surcharge is shown as the server gave it (`surchargeCents`, per `choices[]` for a choice), written with the money formatter.
+- **Sending:** `addLine({ productId, quantity, extras: [{ productId or priceId, quantity }], options: { [key]: text | true | choiceKey } })`. Send only picks: a typed text, `true` for a ticked box, the `key` of a choice, the id or price id of an extra. Leave an unchosen option out. Never send an amount or a label.
+- **Text is text.** Print a visitor's typed text (and an option's label and help text) as text, never as HTML: React escapes it by itself, so do not reach for `dangerouslySetInnerHTML`.
+- **No arithmetic.** Do not add a surcharge or an extra's price to the product price to show a total. While the visitor is choosing, show the surcharges next to the choices; the total is `cart.totals` after the line is added. A price "with your choices" on the page itself would be your own sum, and it will drift from the charge.
+- **Overview cards:** a product in `getProducts` has `hasAddOns`. When it is true, link the card to the product page with "choose options" instead of an add-to-cart button, since the visitor still has to choose.
+- **In the cart:** an extra is a line with `parentLineId` naming its line; draw it indented under that line, and do not give it a remove button that leaves the line (removing the line takes its extras too). A line's `options` lists the choices as the server read them (`label`, `value`, `valueLabel`): print those. Two lines of one product with different choices are two lines. To change the choices use `updateLine(id, { options })`.
+- **Warnings:** `addon_unavailable` (the extra no longer goes with its line) and `options_changed` (the product's options changed since the line was made) are in a line's `warnings`; turn each into a plain sentence, offer to read the product again and choose, and keep the checkout link disabled while `cart.problem` is set. A refusal on `addLine` comes as `error.code` (`option_required`, `option_unknown`, `option_too_long`, `option_invalid`, `addon_not_with_product`, `addon_only_product`, `addon_quantity`): show the message by the field it belongs to.
+
 ## Cart: `app/cart/page.tsx` (client)
 
 ```tsx
