@@ -2,16 +2,16 @@
 
 Every tool is one call of SolumFlow's public API. The API decides what is allowed; a tool never works around a refusal. A refusal that names a right (`forbidden … website:manage`) means the key lacks it. Say which right is missing, and point to Settings → Integrations → API keys for a new key or install command. Do not try a different route.
 
-Some tools below arrive with a later version of the MCP server, so the account's server may not have them yet. Check the tool list. If a tool is missing, take the "without the tool" path; never call a name that is not there.
+An account's server may be older than this skill, so a tool below may be missing. Check the tool list (`server_info` names the version). If a tool is missing, take the "without the tool" path; never call a name that is not there.
 
-| Part | Tools now | Tools in a later server version (right) |
-| --- | --- | --- |
-| Contact form | `list_forms` | `create_form`, `update_form`, `publish_form` (`forms:manage`) |
-| Booking | `list_booking_pages` | calendar setup tools (`calendar:manage`) |
-| Chat widget | `list_chat_widgets`, `upsert_chat_widget` | |
-| Tracking | `get_site_tracking`, `update_site_tracking` | |
-| Cookie banner | (the tag is built from tracking's site key; see below) | `get_consent_banner`, `update_consent_banner` (`website:manage`) |
-| Hosting order page | | `get_hosting_order_page`, `update_hosting_order_page` (`hosting-order:manage`) |
+| Part | Tools | Right | From server |
+| --- | --- | --- | --- |
+| Contact form | `list_forms`; `create_form`, `update_form` (publishing is `update_form` with `status: "published"`) | `website:manage`; `forms:manage` | |
+| Booking | `list_booking_pages`; `upsert_services`, `set_calendar_availability`, `upsert_calendar` | `website:manage`; `calendar:manage` | 0.13 for the setup tools |
+| Chat widget | `list_chat_widgets`, `upsert_chat_widget` | `website:manage` | |
+| Tracking | `get_site_tracking`, `update_site_tracking` | `website:manage` | |
+| Cookie banner | `get_consent_banner`, `update_consent_banner` (the tag is built from tracking's site key; see below) | `website:manage` | |
+| Hosting order page | `get_hosting_order_page`, `update_hosting_order_page` | `hosting-order:manage` | |
 
 A module that is switched off answers `feature_unavailable`. Modules are switched on per account by an administrator, not through the API. Tell the person which module it is (Forms, Calendar, Chat, Cookie banner) and carry on with the other parts.
 
@@ -37,8 +37,14 @@ A module that is switched off answers `feature_unavailable`. Modules are switche
 
    Each has a `url` and an embed snippet.
 2. Match the person's words. "Afspraak maken" or "boeken" for a salon or a practice is the services overview. "Plan een kennismakingsgesprek" is a calendar. If several fit, put the two or three most likely in a question.
-3. **An empty list:** nothing can be booked online yet. Services are set up in the app under Calendar → Services, and an appointment calendar under Calendar. Say so, and skip booking for now.
-4. A calendar that charges for a booking opens its payment in a new tab when it is embedded. That is how it should work, not a fault.
+3. **An empty list, and `upsert_services` exists:** set booking up from the business's own services -- what the site or the person says they offer, never invented ones. Put the list in the plan for the go-ahead: name, length in minutes, price, group.
+   - `upsert_services` with each service by a slug (`knippen`, `kleuren-lang-haar`), `durationMinutes`, `priceCents` and `category`. A service nobody performs is given the account's owner, so it has free times at once.
+   - Every account already has one services calendar (usually `diensten`, Monday to Friday 9:00-17:00). Change its hours only when the business keeps others: `set_calendar_availability` with `slug` and `rules` (`weekday` 0 is Sunday; `startsTime`/`endsTime` as `HH:MM`), and `overrides` for closed days.
+   - For "plan een kennismakingsgesprek" rather than services: `upsert_calendar` with a slug, a name and `durationMinutes`; its hours are set the same way.
+   - Then `list_booking_pages` again: the services overview, its categories and each service now have a link and a snippet.
+   - Paying in advance needs the account's own Stripe connection and is switched on in the app. Without it the price is paid on the spot; say so.
+4. **An empty list, and no `upsert_services`:** services are set up in the app under Calendar → Services, and an appointment calendar under Calendar. Say so, and skip booking for now.
+5. A calendar that charges for a booking opens its payment in a new tab when it is embedded. That is how it should work, not a fault.
 
 ## Chat widget
 
@@ -114,3 +120,13 @@ Use the `embed` the tool returns, or `CrmHostingOrder` with the account from it 
 
 **Without the tool:** the owner sets it up under Settings → Services → Order page, "On your own website", adds the site there and copies the two lines; you place them.
 
+## For a reseller: the customer's own account
+
+An agent of a reseller (a key with `clients:manage`) can give a customer its own SolumFlow account and set it up there, instead of using the reseller's or a demo account.
+
+1. `create_client_account` with the business's name and the owner's e-mail address. The owner gets a login and a mail with the way in. The same address again makes nothing and answers the account that owner already has.
+2. `set_client_modules` with what was sold, for example `crm`, `calendar`, `forms`, `chat`, `consent`.
+3. **The customer's key is made by a script, never by a tool or in the conversation.** A tool's answer lands in the transcript, and so does anything typed. The script calls `createClientApiKey` of `@solumflow-app/crm-client` (or `POST /api/public/v1/client-accounts/api-keys`) with the reseller's key and hands the new key straight on, for example to `claude mcp add` for a server of its own. It prints only "ok" or the error code. A new MCP server loads in a new session.
+4. In that session, with the customer's own server, set up the parts above as usual.
+
+A payment page link with `?ref=<lead>` puts that mark on the order. `list_orders` with `sellerRef` finds it again, with `clientAccountId`: the account the order made when the product sold provisions one.
