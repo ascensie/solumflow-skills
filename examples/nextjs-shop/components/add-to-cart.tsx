@@ -7,23 +7,53 @@ import { useCart } from '@solumflow-app/crm-client/shop/react';
 
 type Option = { id: string; label: string; price: string; inStock: boolean };
 
-/** Puts a product or one of its variants in the cart. It names an id and a quantity, never an amount. */
-export function AddToCart({ options }: { options: Option[] }) {
-  const { addLine, pending } = useCart();
+/**
+ * Puts a product or one of its variants in the cart. It names an id and a
+ * quantity, never an amount.
+ *
+ * What the page already shows goes along as `preview`, so the cart draws the
+ * product the moment the button is pressed. The button stays pressable while
+ * the answer is on its way: a second press counts up the line that is coming.
+ */
+export function AddToCart({
+  name,
+  imageUrl,
+  options,
+}: {
+  name: string;
+  imageUrl: string | null;
+  options: Option[];
+}) {
+  const { addLine } = useCart();
   const [state, setState] = useState<{ chosen: string; message: string | null; added: boolean }>({
     chosen: options.find((option) => option.inStock)?.id ?? options[0]?.id ?? '',
     message: null,
     added: false,
   });
 
-  async function add() {
-    const result = await addLine({ productId: state.chosen });
+  const chosen = options.find((option) => option.id === state.chosen);
 
-    setState((current) => ({
-      ...current,
-      added: result.ok,
-      message: result.ok ? null : result.error.message,
-    }));
+  async function add() {
+    if (!chosen) {
+      return;
+    }
+
+    setState((current) => ({ ...current, added: true, message: null }));
+
+    const result = await addLine(
+      { productId: chosen.id },
+      {
+        preview: {
+          label: options.length > 1 ? `${name} (${chosen.label})` : name,
+          imageUrl,
+          unitPriceLabel: chosen.price,
+        },
+      },
+    );
+
+    if (!result.ok) {
+      setState((current) => ({ ...current, added: false, message: result.error.message }));
+    }
   }
 
   return (
@@ -44,7 +74,7 @@ export function AddToCart({ options }: { options: Option[] }) {
         <p>{options[0]?.price}</p>
       )}
 
-      <button type="button" onClick={add} disabled={pending || !state.chosen}>
+      <button type="button" onClick={add} disabled={!chosen || !chosen.inStock}>
         Add to cart
       </button>
 

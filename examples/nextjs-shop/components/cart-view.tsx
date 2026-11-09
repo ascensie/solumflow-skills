@@ -25,9 +25,14 @@ const WARNINGS: Record<string, string> = {
   not_orderable: 'Cannot be ordered',
 };
 
-/** The basket. Every amount below is read from `cart`; nothing is added up here. */
+/**
+ * The basket. Every amount below is read from `cart`; nothing is added up here.
+ * A product just put in is drawn from its `preview` until the server's line
+ * replaces it, and the totals say they are being calculated meanwhile.
+ */
 export function CartView() {
-  const { cart, lines, loaded, pending, updateLine, removeLine, applyCode, removeCode } = useCart();
+  const { cart, lines, adding, calculating, loaded, pending, updateLine, removeLine, applyCode, removeCode } =
+    useCart();
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState<string | null>(null);
 
@@ -35,15 +40,13 @@ export function CartView() {
     return <p>Loading the cart...</p>;
   }
 
-  if (!cart || lines.length === 0) {
+  if (lines.length === 0 && adding.length === 0) {
     return (
       <p>
         Your cart is empty. <Link href="/">Continue shopping</Link>
       </p>
     );
   }
-
-  const currency = cart.currency;
 
   async function submitCode() {
     const result = await applyCode(code);
@@ -107,14 +110,27 @@ export function CartView() {
               </td>
             </tr>
           ))}
-          {cart.addedLines.map((line) => (
-            <tr key={`${line.productId}-${line.label}`}>
-              <td>{line.label}</td>
+          {adding.map((line) => (
+            <tr key={line.ref}>
+              <td>
+                {line.preview?.imageUrl ? <img src={line.preview.imageUrl} alt="" width={48} /> : null}
+                {line.preview?.label ?? 'Being added...'}
+              </td>
               <td>{line.quantity}</td>
-              <td>{formatMoney(line.totalCents, currency)}</td>
+              <td>{line.preview?.unitPriceLabel ?? ''}</td>
               <td />
             </tr>
           ))}
+          {cart
+            ? cart.addedLines.map((line) => (
+                <tr key={`${line.productId}-${line.label}`}>
+                  <td>{line.label}</td>
+                  <td>{line.quantity}</td>
+                  <td>{formatMoney(line.totalCents, cart.currency)}</td>
+                  <td />
+                </tr>
+              ))
+            : null}
         </tbody>
       </table>
 
@@ -125,7 +141,7 @@ export function CartView() {
         </button>
         {codeError ? <span className="error"> {codeError}</span> : null}
       </p>
-      {cart.discount.code ? (
+      {cart?.discount.code ? (
         <p>
           Code {cart.discount.code}{' '}
           <button type="button" onClick={() => void removeCode()}>
@@ -134,28 +150,33 @@ export function CartView() {
         </p>
       ) : null}
 
-      <dl>
-        <dt>Subtotal</dt>
-        <dd>{formatMoney(cart.totals.subtotalCents, currency)}</dd>
-        {cart.discount.applied.map((discount) => (
-          <div key={`${discount.name}-${discount.code}`}>
-            <dt>{discount.name}</dt>
-            <dd>{formatMoney(discount.amountCents, currency)}</dd>
-          </div>
-        ))}
-        <dt>Shipping</dt>
-        <dd>{cart.shipping.countryCode ? formatMoney(cart.totals.shippingCents, currency) : 'Chosen at checkout'}</dd>
-        <dt>{cart.pricesIncludeTax ? 'Of which VAT' : 'VAT'}</dt>
-        <dd>{formatMoney(cart.totals.taxCents, currency)}</dd>
-        <dt>Total</dt>
-        <dd>
-          <strong>{formatMoney(cart.totals.totalCents, currency)}</strong>
-        </dd>
-      </dl>
+      {cart && !calculating ? (
+        <dl>
+          <dt>Subtotal</dt>
+          <dd>{formatMoney(cart.totals.subtotalCents, cart.currency)}</dd>
+          {cart.discount.applied.map((discount) => (
+            <div key={`${discount.name}-${discount.code}`}>
+              <dt>{discount.name}</dt>
+              <dd>{formatMoney(discount.amountCents, cart.currency)}</dd>
+            </div>
+          ))}
+          <dt>Shipping</dt>
+          <dd>{cart.shipping.countryCode ? formatMoney(cart.totals.shippingCents, cart.currency) : 'Chosen at checkout'}</dd>
+          <dt>{cart.pricesIncludeTax ? 'Of which VAT' : 'VAT'}</dt>
+          <dd>{formatMoney(cart.totals.taxCents, cart.currency)}</dd>
+          <dt>Total</dt>
+          <dd>
+            <strong>{formatMoney(cart.totals.totalCents, cart.currency)}</strong>
+          </dd>
+        </dl>
+      ) : (
+        // Never the last totals and never a sum of our own: the server's arrive in a moment.
+        <p>Totals are being calculated...</p>
+      )}
 
-      {cart.problem ? <p className="error">{cart.problem.message}</p> : null}
+      {cart?.problem ? <p className="error">{cart.problem.message}</p> : null}
 
-      {cart.problem ? (
+      {!cart || cart.problem ? (
         <button type="button" disabled>
           Checkout
         </button>

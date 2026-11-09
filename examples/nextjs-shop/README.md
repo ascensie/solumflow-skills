@@ -11,7 +11,7 @@ What it shows:
 | --- | --- |
 | `app/page.tsx` | overview with search, stock and facets (`getProducts`) |
 | `app/category/[slug]/page.tsx` | a category with its breadcrumb and products (`getCategory`) |
-| `app/product/[slug]/page.tsx` | a product with metadata and structured data (`productMetadata`, `ProductJsonLd`) |
+| `app/product/[slug]/page.tsx`, `components/add-to-cart.tsx` | a product with metadata and structured data (`productMetadata`, `ProductJsonLd`), and a button that puts it in the cart at once (`preview`) |
 | `app/cart/page.tsx`, `components/cart-view.tsx` | the cart, discount code and totals (`useCart`) |
 | `app/checkout/page.tsx`, `components/checkout-form.tsx` | shipping, order and Stripe payment (`useCheckout`) |
 | `app/thank-you/page.tsx` | after paying, and the purchase event for redirecting payment methods |
@@ -19,6 +19,7 @@ What it shows:
 | `app/sitemap.ts` | every product and category (`getSitemapEntries`) |
 | `app/api/shop/[...path]/route.ts` | the one route the cart and checkout use (`createShopRouteHandler`) |
 | `app/api/solumflow/revalidate/route.ts` | keeps cached pages fresh (`createRevalidateHandler`) |
+| `vercel.json` | puts the site in Stockholm (`arn1`), beside SolumFlow, so a basket change does not cross the Atlantic twice |
 
 Two rules the whole example follows:
 
