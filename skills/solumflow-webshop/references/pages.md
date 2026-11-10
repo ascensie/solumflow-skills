@@ -32,6 +32,8 @@ export const { GET, POST, PUT, PATCH, DELETE } = createShopRouteHandler({
 
 This is the only door the cart and checkout use. It keeps the key and the visitor's cart token on the server (the token in an httpOnly cookie) and refuses posts from other origins. `/api/shop` is where `CartProvider` looks by default; mount it elsewhere only if you also pass `endpoint` to `CartProvider`. `cartUrl` is the link in a reminder mail about an abandoned cart.
 
+**Put the site in Stockholm.** On Vercel, give the site's project `"regions": ["arn1"]` in its `vercel.json` and deploy once for it to take. Every change to a cart is a call from this route to SolumFlow, which answers from Stockholm, and Vercel's default region is Washington: a site left there pays the Atlantic twice on every "add to cart" (a basket change took 1.1 seconds on a live shop that was). Each answer's `X-Solum-Region` header says where SolumFlow's side ran.
+
 ## Root layout
 
 Wrap the pages that use the cart in `CartProvider` once, in `app/layout.tsx`. It is a client component; the layout stays a server component. A small client component with `useCart()` draws the cart link with the number of lines.
@@ -75,6 +77,8 @@ export default async function Page({ params }) {
 - `basePath` must be the folder the product pages really live in, so the canonical address is right. Use the same paths in `getSitemapEntries`.
 - The product has `images` (use `displayUrl`), `description`, `longDescription` (HTML the server has cleaned), `fields` (custom fields), `prices`, `variants` and `variantAxes`. Show a price as `priceFromCents` or a price's `amountCents`, written with a money formatter.
 - A product with variants is bought by the variant's `id`; one without by the product's `id`. A client component with the add-to-cart button gets only ids, labels and already-formatted price strings from the server page.
+- **The cart shows the product the moment the button is pressed.** Pass what the page already shows as `preview`: `addLine({ productId }, { preview: { label, imageUrl, unitPriceLabel } })`, with `unitPriceLabel` the price string exactly as the page printed it. The product is then in `adding` at once, and the cart draws it before the server has answered.
+- **Never disable the add button while adding.** Not on `pending`, not until the answer: a second press counts up the line that is on its way, the way the server counts it. Disable it only when nothing can be added (no variant chosen, sold out).
 
 ### Extras and options on the product page
 
@@ -92,10 +96,12 @@ A product may offer extras (other products that go with it: a warranty, assembly
 ## Cart: `app/cart/page.tsx` (client)
 
 ```tsx
-const { cart, lines, loaded, pending, addLine, updateLine, removeLine, applyCode, removeCode } = useCart();
+const { cart, lines, adding, calculating, loaded, pending, addLine, updateLine, removeLine, applyCode, removeCode } = useCart();
 ```
 
 - `loaded` is false until the first answer: show "loading", not "empty".
+- `adding` holds the products put in with a `preview` that the server has not answered for yet. Draw each as a line at once, with the preview's label, image and price label, and without a quantity field or remove button; it leaves `adding` when its answer lands in `lines`. The cart is not empty while `adding` has anything in it, even when `cart` is still null.
+- While `calculating` is true, show the totals as being worked out ("being calculated"), not the last ones and never a sum of your own.
 - Every change answers `{ ok: true, value: cart }` or `{ ok: false, error }`; it never throws. A refused code has `error.code === 'discount_refused'` and `error.details.reason` (`unknown`, `expired`, `minimum_not_met`, `used_up`, `not_combinable`, `not_applicable`): turn each into a plain sentence.
 - Show `cart.totals` (`subtotalCents`, `discountCents`, `shippingCents`, `taxCents`, `totalCents`), `cart.discount.applied`, each line's `totalCents` and its `warnings`, and `cart.problem` when set. Disable the checkout link while `cart.problem` is set.
 - `cart.pricesIncludeTax` says whether the amounts include VAT; word the labels accordingly.

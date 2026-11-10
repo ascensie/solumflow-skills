@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: Props) {
         <div dangerouslySetInnerHTML={{ __html: product.longDescription }} />
       ) : null}
 
-      <AddToCart options={options} />
+      <AddToCart name={product.name} imageUrl={image?.displayUrl ?? null} options={options} />
     </article>
   );
 }

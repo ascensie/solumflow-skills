@@ -48,6 +48,8 @@ The first grep also matches a file that merely documents the rule. If a hit is a
 Then:
 
 - `grep -rl "use client" app` and check that none of those files imports `@solumflow-app/crm-client/shop` or `@solumflow-app/crm-client/shop-route` (both are server only).
+- The add-to-cart button passes a `preview` to `addLine` and is not disabled on `pending`; the cart draws `adding` and shows the totals as being calculated while `calculating` is true.
+- On Vercel, `vercel.json` names `"regions": ["arn1"]`.
 - Run the project's build and its type check with the project's own package manager. Both must pass.
 - Call `check_shop_readiness` and report the outcome. No blockers; every remaining warning is either fixed or named to the owner with the reason.
 - Call `run_test_order` (test mode only) and report whether the order was paid.
