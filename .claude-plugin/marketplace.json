@@ -5,7 +5,7 @@
     {
       "name": "solumflow",
       "source": "./",
-      "description": "Skills for connecting a website to SolumFlow through the SolumFlow MCP server."
+      "description": "Skills for connecting a website to SolumFlow through the SolumFlow MCP server, and for filling and using its knowledge base."
     }
   ]
 }
