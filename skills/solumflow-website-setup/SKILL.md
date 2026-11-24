@@ -1,6 +1,6 @@
 ---
 name: solumflow-website-setup
-description: Connects a website to SolumFlow in one guided pass. It offers a menu (contact form, booking, chat widget, hosting order page, visitor tracking, cookie banner), sets up the chosen parts in the CRM through the SolumFlow MCP server, and places them in the site's code. Use it whenever someone wants SolumFlow, their CRM, or "het systeem" on their website, wants a contact form, booking page, chat, a hosting order page (domain, hosting and mail in one payment), tracking script or cookie banner from SolumFlow on a site, or has just installed the SolumFlow MCP server and asks what to do next. Use it even if they only name one of those parts. Products, the catalogue and shop pages are not part of this skill. A web shop is `solumflow-webshop`.
+description: Connects a website to SolumFlow in one guided pass. It offers a menu (contact form, booking, chat widget, hosting order page, visitor tracking, cookie banner), sets up the chosen parts in the CRM through the SolumFlow MCP server, and places them in the site's code. Use it whenever someone wants SolumFlow, their CRM, or "het systeem" on their website, wants a contact form, booking page, chat, a hosting order page (domain, hosting and mail in one payment), tracking script or cookie banner from SolumFlow on a site, or has just installed the SolumFlow MCP server and asks what to do next. Use it even if they only name one of those parts. Products, the catalogue and shop pages are not part of this skill. A web shop is `solumflow-webshop`. Pages, a menu and texts kept on SolumFlow's CMS are `solumflow-cms-site`.
 ---
 
 # SolumFlow on a website: the basic setup
@@ -20,7 +20,7 @@ The person running this is often a business owner, not a developer. Talk to them
 | Visitor tracking | set tracking up, allow the site's hosts | the tracking script, once, site-wide |
 | Cookie banner | switch the banner on, set Tag Manager and privacy link | the banner tag in the head, and a "cookie settings" link |
 
-Products, categories and a shop are not part of this setup (that is `solumflow-webshop`), and neither is a 3D configurator. If the person asks for them, finish this setup first, then point to the `solumflow-webshop` skill, which builds the shop (it hands tracking and the cookie banner back to this skill).
+Products, categories and a shop are not part of this setup (that is `solumflow-webshop`), and neither is a 3D configurator. If the person asks for them, finish this setup first, then point to the `solumflow-webshop` skill, which builds the shop (it hands tracking and the cookie banner back to this skill). The same for a site whose pages should live on SolumFlow's CMS: that is the `solumflow-cms-site` skill.
 
 ## Step 0: is the MCP server there?
 
