@@ -80,6 +80,28 @@ export default async function Page({ params }) {
 - **The cart shows the product the moment the button is pressed.** Pass what the page already shows as `preview`: `addLine({ productId }, { preview: { label, imageUrl, unitPriceLabel } })`, with `unitPriceLabel` the price string exactly as the page printed it. The product is then in `adding` at once, and the cart draws it before the server has answered.
 - **Never disable the add button while adding.** Not on `pending`, not until the answer: a second press counts up the line that is on its way, the way the server counts it. Disable it only when nothing can be added (no variant chosen, sold out).
 
+### The product's content blocks
+
+The team writes content on a product in SolumFlow (text, a list, questions and answers, a call to action, downloads, reviews) and picks per product which blocks stand on its page. The product page is your template: you decide where those blocks stand and how they look. Draw them with `RenderProductContent` from `@solumflow-app/crm-client/cms/react` (crm-client 0.24 and later), never by hand from `product.fields`.
+
+```tsx
+const fields = await crm.getFields({ object: product.object });
+<RenderProductContent
+  product={product}
+  fields={fields}
+  locale="nl"
+  order={['kenmerken', 'veelgestelde-vragen']}   // slugs, your template's order; leave out for the catalogue's order
+  look={{ kenmerken: { ontwerp: 'icoon-links' } }} // a design and colour area of the site, per slug
+  designs={designs}
+  kleuren={kleuren}
+/>
+```
+
+- It draws each block with the block of a CMS page that fits it (text, list, questions, call to action, one quote per review) and downloads as a list of files, so the site's CMS designs and colour areas work on it. A configurator is not drawn here; `@solumflow-app/product-configurator` does that.
+- A block that is empty or not on this product's page is left out by itself. Do not test `fields` yourself.
+- Call it more than once with a different `order` to put blocks in different places of the page.
+- If the site has a CMS designs route, tell SolumFlow where the product pages are: `cmsDesignsRoute(designs, { kleuren, productpaden: '/products/{slug}' })` (the same folder as `basePath`). SolumFlow then shows *View on the site* on the product.
+
 ### Extras and options on the product page
 
 A product may offer extras (other products that go with it: a warranty, assembly) and options (a choice on the product with a surcharge: an engraving, gift wrapping, a ribbon colour). `getProduct` answers both: `product.extras` and `product.options`, empty when there are none. Show them from that answer and nowhere else.
