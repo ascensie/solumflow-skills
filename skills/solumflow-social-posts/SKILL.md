@@ -47,7 +47,7 @@ Save each post with `save_social_post`: `text`, `channels` as `{id, platform}` f
 
 - **`text_problem`:** a text is too long for a platform. Shorten it, or give that channel a text of its own, and save again with the same `post_id`.
 - **`channel_not_connected`:** the channel was disconnected in the meantime. Leave it out and tell the person.
-- To change a draft later, save it again with its `post_id`. You can only change the person's own posts, and only while they are a draft or waiting for approval.
+- To change a draft later, save it again with its `post_id`. `channels` and `media_ids` replace what the draft has, so leave them out when only the text or the date changes. You can only change the person's own posts, and only while they are a draft or waiting for approval.
 
 ## Step 4: offer for approval, on the person's yes
 
@@ -56,6 +56,7 @@ Ask: "Zal ik ze ter goedkeuring aanbieden?" Only on a yes, call `submit_social_p
 - **`media_problem`:** a platform will not take the pictures (none on Instagram, too many, the wrong size or kind). The answer names the platform and the rule. Choose another file with `list_social_media`, save again, and offer again.
 - **`option_problem`:** a platform asks for something the post leaves empty, such as a Pinterest board or a YouTube title. Add it in that channel's `options` (`boardName`, `title`) and save again.
 - **`not_a_draft`:** the post was offered already, or a manager has picked it up. Leave it.
+- **`version_conflict`:** the post was saved again while it was being checked. Offer it again.
 
 ## Step 5: the closing words
 
