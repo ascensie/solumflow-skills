@@ -1,7 +1,7 @@
 {
   "name": "solumflow",
-  "description": "Skills for connecting a website to SolumFlow through the SolumFlow MCP server, and for filling and using its knowledge base.",
-  "version": "0.3.0",
+  "description": "Skills for connecting a website to SolumFlow through the SolumFlow MCP server, for filling and using its knowledge base, and for drafting social posts for approval.",
+  "version": "0.4.0",
   "author": { "name": "SolumFlow" },
   "homepage": "https://github.com/ascensie/solumflow-skills"
 }
