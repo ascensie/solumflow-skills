@@ -29,15 +29,17 @@ Or, in Claude Code, as a plugin:
 | [`solumflow-cms-site`](skills/solumflow-cms-site/SKILL.md) | A website whose pages live on SolumFlow's CMS: it connects a Next.js site (pages, menu, sitemap, the editor's preview, the webhook) with the SDK in the site's own design, and writes the pages as drafts through the MCP server for a person to publish in SolumFlow. |
 | [`solumflow-kennisbank-interview`](skills/solumflow-kennisbank-interview/SKILL.md) | Fills the knowledge base: it reads the website and what is already written, interviews the owner in short rounds, sorts each answer into "Over ons bedrijf" (background the website chat may use) or "Intern" (the team only), and writes every topic as a draft to publish in the app. |
 | [`solumflow-projectinstructies`](skills/solumflow-projectinstructies/SKILL.md) | A block of instructions for a project in Claude or ChatGPT, so the project takes its knowledge about the business from the knowledge base, names its source, and writes what it learns back as a draft. |
+| [`solumflow-social-posts`](skills/solumflow-social-posts/SKILL.md) | Writes social media posts: it looks at the connected channels, what the team already planned and the media library, writes each post per platform within its limits, saves it as a draft in the person's name and offers it for approval. A manager schedules it in the app. |
 
 Ask the agent something like "zet SolumFlow op mijn website" or "bouw mijn
 webshop op SolumFlow" in the site's project folder, and the matching skill takes
 it from there.
 
-The two knowledge base skills need the **online connector**, not the API key:
-the knowledge base follows the rights of the person who connects it. In
+The two knowledge base skills and the social posts skill need the **online
+connector**, not the API key: they follow the rights of the person who
+connects it, and a post is written in their name. In
 SolumFlow, Settings → Integrations → Claude (or ChatGPT) shows the address and
-the steps; tick the two knowledge base rights when SolumFlow asks. Then ask
+the steps; tick the knowledge base or social rights when SolumFlow asks. Then ask
 something like "vul onze kennisbank" or "maak projectinstructies voor onze
 offertes".
 
